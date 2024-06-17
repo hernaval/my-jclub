@@ -11,6 +11,8 @@ import com.hernaval.judomanager.model.Judoka;
 
 @RepositoryRestResource(collectionResourceRel = "judokas", path="judokas")
 public interface JudokaRestResourceRepository extends JpaRepository<Judoka, Long> {
+	
 	@Query("select j from Judoka j where j.firstname like :name or j.lastname like :name ")
 	List<Judoka> findByName(@Param("name") String name);
+	
 }

@@ -1,5 +1,6 @@
 package com.hernaval.judomanager.model;
 
+
 import static jakarta.persistence.FetchType.LAZY;
 
 import java.time.LocalDate;

@@ -27,7 +27,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 @Tag(name = "Training plan and attendance")
 @RestController
-@RequestMapping(value = "/trainings")
+@RequestMapping(value = "/sessions")
 public class TrainingSessionController {
 
 	@Autowired
@@ -43,11 +43,18 @@ public class TrainingSessionController {
 	}
 
 	@Operation(description = "Update judoka attendance status in a training session")
-	@PostMapping("/attendance")
+	@PostMapping("/attendances")
 	public ResponseEntity<?> updateSessionAttendance(@RequestBody List<AttendanceData> data) {
 		service.updateAttendance(data);
 
 		return ResponseEntity.status(HttpStatus.CREATED).body("Training attendance updated");
+	}
+	
+	@Operation(description = "Get list of judoka as attenders in a training session")
+	@GetMapping("/attendances")
+	public ResponseEntity<?> retrieveSessionAttenders(@RequestParam("at") LocalDate at, @RequestParam("scheduleId") Long scheduleId) {
+		
+		return ResponseEntity.status(HttpStatus.OK).body(service.findAttenders(new ScheduleId(scheduleId), at));
 	}
 
 }
