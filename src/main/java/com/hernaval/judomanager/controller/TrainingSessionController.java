@@ -34,7 +34,7 @@ public class TrainingSessionController {
 	TrainingSessionService service;
 
 	@Operation(description = "Get next training session between a date range for a scheduled activity")
-	@GetMapping("/schedules/{id}/sessions")
+	@GetMapping("/schedules/{id}/next")
 	public ResponseEntity<List<Session>> getSessionBetween(@PathVariable("id") Long id,
 			@DateTimeFormat(iso = DATE) @RequestParam("from") LocalDate from,
 			@DateTimeFormat(iso = DATE) @RequestParam("to") LocalDate to) {

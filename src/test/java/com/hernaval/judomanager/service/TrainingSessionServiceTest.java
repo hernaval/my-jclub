@@ -12,6 +12,8 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.junit.platform.commons.annotation.Testable;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -63,10 +65,45 @@ public class TrainingSessionServiceTest {
 	
 	@Test
 	public void should_start_on_schedule_day() {
+		LocalDate start    			= LocalDate.of(2024, 06, 05);
+		LocalDate end 	   			= LocalDate.of(2024, 06, 30);
+		ScheduleId id      			= new ScheduleId(1L);
+		LocalDate scheduleStartDate = LocalDate.of(2024, 06, 04);
+		LocalDate expectedStart 	= LocalDate.of(2024, 06, 11);
 		
-		Assertions.assertTrue(true);
+		when(scheduleRepository.findById(id.id())).thenReturn(Optional.of(buildSchedule(scheduleStartDate)));
+		when(generator.generate(new Session(expectedStart), new Session(end))).thenReturn(List.of());
+		
+		service.findTrainingPrograms(id, start, end);
+		
+		verify(generator).generate(
+				argThat(
+						x -> x.getDate().equals(expectedStart) ), argThat(
+						y -> true	
+								));
+		
 	}
-	
+
+	@Test
+	public void should_start_on_the_start() {
+		LocalDate start    			= LocalDate.of(2024, 06, 11);
+		LocalDate end 	   			= LocalDate.of(2024, 06, 30);
+		ScheduleId id      			= new ScheduleId(1L);
+		LocalDate scheduleStartDate = LocalDate.of(2024, 06, 04);
+		LocalDate expectedStart 	= LocalDate.of(2024, 06, 11);
+		
+		when(scheduleRepository.findById(id.id())).thenReturn(Optional.of(buildSchedule(scheduleStartDate)));
+		when(generator.generate(new Session(expectedStart), new Session(end))).thenReturn(List.of());
+		
+		service.findTrainingPrograms(id, start, end);
+		
+		verify(generator).generate(
+				argThat(
+						x -> x.getDate().equals(expectedStart) ), argThat(
+						y -> true	
+								));
+		
+	}
 	public  Schedule buildSchedule(LocalDate date) {
 		return Schedule.builder()
 				.startDate(date)

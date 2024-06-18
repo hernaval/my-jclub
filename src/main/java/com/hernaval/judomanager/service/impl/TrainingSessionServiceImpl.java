@@ -21,6 +21,7 @@ import com.hernaval.judomanager.repository.JudokaRepository;
 import com.hernaval.judomanager.repository.ScheduleRepository;
 import com.hernaval.judomanager.repository.TrainingSessionRepository;
 import com.hernaval.judomanager.service.TrainingSessionService;
+import com.hernaval.judomanager.utils.NextNDaySession;
 import com.hernaval.judomanager.utils.SessionGenerator;
 
 import jakarta.transaction.Transactional;
@@ -44,14 +45,18 @@ public class TrainingSessionServiceImpl implements TrainingSessionService {
 	
 	@Override
 	public List<Session> findTrainingPrograms(ScheduleId scheduleId, LocalDate startDate, LocalDate endDate) {
-		Session      start;
 		final Session  end = new Session(endDate);
 		Schedule  schedule = repository.findById(scheduleId.id()).orElseThrow(() -> new NotFoundException("No schedule "+scheduleId.id()));
+		Session      start = new Session(schedule.getStartDate());
 		
-		if(startDate.isBefore(schedule.getStartDate())) {
-			start = new Session(schedule.getStartDate());
-		} else {
-			start = new Session(startDate);
+		if(startDate.isAfter(start.getDate())) {
+			int diff = (int) (schedule.getStartDate().datesUntil(startDate).count() / 7);
+			if(diff < 1) {
+				diff++;
+			}
+			LOGGER.debug("<== ssToAdd {}", diff);
+			NextNDaySession next = new NextNDaySession(diff * 7);
+			start                = next.getNextSession(start);
 		}
 		
 		return generator.generate(start, end);

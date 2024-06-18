@@ -13,7 +13,7 @@ import lombok.ToString;
 @AllArgsConstructor
 public class Session {
 	private final LocalDate date;
-
+	
 	@Override
 	public int hashCode() {
 		return Objects.hash(date);
