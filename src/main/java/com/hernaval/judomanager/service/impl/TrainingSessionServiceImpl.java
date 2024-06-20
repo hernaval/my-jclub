@@ -50,12 +50,15 @@ public class TrainingSessionServiceImpl implements TrainingSessionService {
 		Session      start = new Session(schedule.getStartDate());
 		
 		if(startDate.isAfter(start.getDate())) {
-			int diff = (int) (schedule.getStartDate().datesUntil(startDate).count() / 7);
-			if(diff < 1) {
-				diff++;
+			int diffDays = (int) schedule.getStartDate().datesUntil(startDate).count();
+			int nWeeks   = diffDays / 7;
+			int nDays    = diffDays % 7;
+			
+			if(nDays != 0) {
+				nWeeks++;
 			}
-			LOGGER.debug("<== ssToAdd {}", diff);
-			NextNDaySession next = new NextNDaySession(diff * 7);
+			LOGGER.debug("<== diffDays={}  nWeeks={}  nDays={}", diffDays, nWeeks, nDays);
+			NextNDaySession next = new NextNDaySession(nWeeks * 7);
 			start                = next.getNextSession(start);
 		}
 		

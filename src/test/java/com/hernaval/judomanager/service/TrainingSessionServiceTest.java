@@ -7,13 +7,15 @@ import static org.mockito.Mockito.when;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.platform.commons.annotation.Testable;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -104,9 +106,42 @@ public class TrainingSessionServiceTest {
 								));
 		
 	}
+	
+
+	@ParameterizedTest
+	@MethodSource("provideDateData")
+	public void testMany(LocalDate start, LocalDate end, LocalDate scheduleStartDate, LocalDate expectedStart) {
+		ScheduleId id      			= new ScheduleId(1L);
+		
+		when(scheduleRepository.findById(id.id())).thenReturn(Optional.of(buildSchedule(scheduleStartDate)));
+		when(generator.generate(new Session(expectedStart), new Session(end))).thenReturn(List.of());
+		
+		service.findTrainingPrograms(id, start, end);
+		
+		verify(generator).generate(
+				argThat(
+						x -> x.getDate().equals(expectedStart) ), argThat(
+								y -> true	
+								));
+		Assertions.assertTrue(true);
+		
+	}
 	public  Schedule buildSchedule(LocalDate date) {
 		return Schedule.builder()
 				.startDate(date)
 				.build();
 	}
+
+	public static Stream<Arguments> provideDateData() {
+		return Stream.of(
+				Arguments.of(ld("2024-06-17"), ld("2024-06-30"), ld("2024-06-04"), ld("2024-06-18")),
+				Arguments.of(ld("2024-07-03"), ld("2024-07-31"), ld("2024-06-04"), ld("2024-07-09")),
+				Arguments.of(ld("2025-01-01"), ld("2025-01-20"), ld("2024-12-15"), ld("2025-01-05"))
+				);
+	}
+	
+	private static LocalDate ld(String d) {
+		return LocalDate.parse(d);
+	}
+	
 }
